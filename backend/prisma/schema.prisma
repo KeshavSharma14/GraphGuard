@@ -1,0 +1,54 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String     @id @default(cuid())
+  email     String     @unique
+  name      String
+  password  String
+  createdAt DateTime   @default(now())
+  auditLogs AuditLog[]
+}
+
+model Account {
+  id          String        @id
+  label       String
+  metadata    Json          @default("{}")
+  riskScore   Float         @default(0)
+  flagged     Boolean       @default(false)
+  fraudRingId String?
+  reasonData  Json          @default("[]")
+  createdAt   DateTime      @default(now())
+  sent        Transaction[] @relation("sender")
+  received    Transaction[] @relation("receiver")
+  auditLogs   AuditLog[]
+}
+
+model Transaction {
+  id            String   @id @default(cuid())
+  fromAccountId String
+  toAccountId   String
+  amount        Float
+  timestamp     DateTime
+  device        String?
+  ipAddress     String?
+  fromAccount   Account  @relation("sender", fields: [fromAccountId], references: [id])
+  toAccount     Account  @relation("receiver", fields: [toAccountId], references: [id])
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  action    String
+  details   String
+  createdAt DateTime @default(now())
+  userId    String?
+  accountId String?
+  user      User?    @relation(fields: [userId], references: [id])
+  account   Account? @relation(fields: [accountId], references: [id])
+}

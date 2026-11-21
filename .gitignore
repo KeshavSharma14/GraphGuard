@@ -1,0 +1,11 @@
+node_modules/
+.next/
+dist/
+.env
+.env.local
+venv/
+.venv/
+__pycache__/
+*.pyc
+ml-service/model_artifacts/*.joblib
+ml-service/model_artifacts/*.json
